@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* Copyright (C) 2007-2010 QuietlyCoding <mike@quietlycoding.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<com.quietlycoding.android.reader.view.PostListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:paddingRight="10dip">
+
+    <View
+        android:id="@+id/chip"
+        android:background="@drawable/appointment_indicator_leftside_1"
+        android:layout_width="4dip"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true" />
+
+    <ImageView
+        android:id="@+id/selected_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/chip"
+        android:paddingTop="10dip"
+        android:paddingLeft="4dip"
+        android:src="@drawable/btn_check_buttonless_dark_off" />
+
+    <ImageView
+        android:id="@+id/favorite_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:paddingTop="10dip"
+        android:src="@android:drawable/star_off" />
+
+    <TextView
+        android:id="@+id/post_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/selected_post"
+        android:layout_toLeftOf="@id/favorite_post"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingLeft="10dip"
+        android:drawablePadding="4dip"
+        android:paddingTop="12dip" />
+
+    <TextView
+        android:id="@+id/post_author"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/post_title"
+        android:layout_alignLeft="@id/post_title"
+        android:paddingLeft="10dip"
+        android:layout_marginRight="6dip" />
+
+    <TextView
+        android:id="@+id/post_date"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/favorite_post"
+        android:layout_alignParentRight="true" 
+        android:layout_alignBaseline="@+id/post_author" />
+
+</com.quietlycoding.android.reader.view.PostListItem>
