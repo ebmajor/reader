@@ -23,9 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -52,7 +50,7 @@ public class ChannelAdd extends Activity {
         setContentView(R.layout.channel_add);
 
         mUrlText = (EditText) findViewById(R.id.url_edit);
-        Button add = (Button) findViewById(R.id.feed_add);
+        final Button add = (Button) findViewById(R.id.feed_add);
 
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -63,12 +61,12 @@ public class ChannelAdd extends Activity {
 
     private static URL getDefaultFavicon(String url) {
         try {
-            URL orig = new URL(url);
-            URL iconUrl = new URL(orig.getProtocol(), orig.getHost(),
-            orig.getPort(), "/favicon.ico");
+            final URL orig = new URL(url);
+            final URL iconUrl = new URL(orig.getProtocol(), orig.getHost(), orig.getPort(),
+                    "/favicon.ico");
 
             return iconUrl;
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             Log.d(TAG, "Exception caught: " + e.toString());
             return null;
         }
@@ -77,32 +75,34 @@ public class ChannelAdd extends Activity {
     private void addChannel() {
         final String url = mUrlText.getText().toString();
 
-        mBusy = ProgressDialog.show(ChannelAdd.this, "Downloading",
-                "Accessing XML Feed...", true, false);
+        mBusy = ProgressDialog.show(ChannelAdd.this, "Downloading", "Accessing XML Feed...", true,
+                false);
 
-        Thread t = new Thread() {
+        final Thread t = new Thread() {
+            @Override
             public void run() {
                 try {
-                    PostListParser parser = new PostListParser(getContentResolver());
+                    final PostListParser parser = new PostListParser(getContentResolver());
 
                     final long id = parser.syncDb(null, -1, url);
 
                     if (id >= 0) {
-                        URL iconUrl = getDefaultFavicon(url);
+                        final URL iconUrl = getDefaultFavicon(url);
                         parser.updateFavicon(id, iconUrl);
                     }
 
                     mHandler.post(new Runnable() {
                         public void run() {
                             mBusy.dismiss();
-                            Uri uri = ContentUris.withAppendedId(Reader.Channels.CONTENT_URI, id);
+                            final Uri uri = ContentUris.withAppendedId(Reader.Channels.CONTENT_URI,
+                                    id);
                             getIntent().setData(uri);
 
                             setResult(RESULT_OK, getIntent());
                             finish();
                         }
                     });
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Log.d("::Exception::", e.toString());
                     final String errmsg = e.getMessage();
                     final String errmsgFull = e.toString();
@@ -111,16 +111,18 @@ public class ChannelAdd extends Activity {
                         public void run() {
                             mBusy.dismiss();
 
-                            String errstr = ((errmsgFull != null) ? errmsgFull : errmsg);
-                            new AlertDialog.Builder(ChannelAdd.this)
-                                    .setTitle("Feed Error")
-                                    .setMessage("An error was encountered while accessing the feed: " + errstr)
-                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                        //whatever.
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-			
-                                        }
-                                    }).create();
+                            final String errstr = ((errmsgFull != null) ? errmsgFull : errmsg);
+                            new AlertDialog.Builder(ChannelAdd.this).setTitle("Feed Error")
+                                    .setMessage(
+                                            "An error was encountered while accessing the feed: "
+                                                    + errstr).setPositiveButton("Ok",
+                                            new DialogInterface.OnClickListener() {
+                                                // whatever.
+                                                public void onClick(DialogInterface dialog,
+                                                        int whichButton) {
+
+                                                }
+                                            }).create();
                         }
                     });
                 }

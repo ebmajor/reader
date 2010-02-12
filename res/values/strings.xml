@@ -17,6 +17,18 @@
 -->
 <resources>
     <string name="app_name">Reader</string>
+    
+    <!-- Notification Strings -->
     <string name="reader_sync">Syncing with Google Reader</string>
     <string name="sync_error">Google Reader Sync Error</string>
+    
+    <!-- Preferences Strings -->
+    <string name="general_settings">General Settings</string>
+    <string name="display_settings">Display Settings</string>
+    <string name="sync_on_open">Sync on Open</string>
+    <string name="sync_on_open_desc">Sync when application starts</string>
+    <string name="sync_schedule">Sync Schedule</string>
+    <string name="sync_schedule_desc">Set when the application syncs</string>
+    <string name="sync_account">Google Account</string>
+    <string name="sync_account_desc">Google Account for sync</string>
 </resources>

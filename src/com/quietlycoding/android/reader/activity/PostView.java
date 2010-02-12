@@ -15,13 +15,11 @@
 package com.quietlycoding.android.reader.activity;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.webkit.WebView;
@@ -35,11 +33,9 @@ import com.quietlycoding.android.reader.provider.Reader;
 public class PostView extends Activity {
     private static final String TAG = "Reader.PostView";
 
-    private static final String[] PROJECTION = new String[] {
-        Reader.Posts._ID, Reader.Posts.CHANNEL_ID,
-        Reader.Posts.TITLE, Reader.Posts.BODY, Reader.Posts.READ,
-        Reader.Posts.URL, Reader.Posts.STARRED 
-    };
+    private static final String[] PROJECTION = new String[] { BaseColumns._ID,
+            Reader.Posts.CHANNEL_ID, Reader.Posts.TITLE, Reader.Posts.BODY, Reader.Posts.READ,
+            Reader.Posts.URL, Reader.Posts.STARRED };
 
     private ViewFlipper mFlip;
     private Cursor mCursor;
@@ -54,8 +50,9 @@ public class PostView extends Activity {
 
         mFlip = (ViewFlipper) findViewById(R.id.post_flip);
 
-        //we use an AsyncTask to keep pulling the next three items in the list for easy scroll.
-        Uri uri = getIntent().getData();
+        // we use an AsyncTask to keep pulling the next three items in the list
+        // for easy scroll.
+        final Uri uri = getIntent().getData();
 
         mCursor = managedQuery(uri, PROJECTION, null, null, null);
 
@@ -63,11 +60,11 @@ public class PostView extends Activity {
         mChannelId = mCursor.getLong(mCursor.getColumnIndex(Reader.Posts.CHANNEL_ID));
         mPostId = Long.parseLong(uri.getPathSegments().get(1));
 
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(Reader.Posts.READ, 1);
         getContentResolver().update(getIntent().getData(), values, null, null);
     }
-	
+
     @Override
     public void onStart() {
         super.onStart();
@@ -75,22 +72,21 @@ public class PostView extends Activity {
     }
 
     private void initData() {
-        LinearLayout v = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.post_view_item, null);
-        TextView postTitle = (TextView) v.findViewById(R.id.post_view_title);
+        final LinearLayout v = (LinearLayout) LayoutInflater.from(this).inflate(
+                R.layout.post_view_item, null);
+        final TextView postTitle = (TextView) v.findViewById(R.id.post_view_title);
 
-        String title = mCursor.getString(mCursor.getColumnIndex(Reader.Posts.TITLE));
+        final String title = mCursor.getString(mCursor.getColumnIndex(Reader.Posts.TITLE));
         postTitle.setText(title);
 
-        WebView postText = (WebView) v.findViewById(R.id.post_view_text);
+        final WebView postText = (WebView) v.findViewById(R.id.post_view_text);
 
-        String html =
-                "<html><head><style type=\"text/css\">body { background-color: #201c19; color: white; } a { color: #ddf; }</style></head><body>" +
-                getBody() +
-                "</body></html>";
+        final String html = "<html><head><style type=\"text/css\">body { background-color: #201c19; color: white; } a { color: #ddf; }</style></head><body>"
+                + getBody() + "</body></html>";
 
         postText.loadData(html, "text/html", "utf-8");
 
-        //add view to the flipper.
+        // add view to the flipper.
         mFlip.addView(v);
     }
 
@@ -99,23 +95,27 @@ public class PostView extends Activity {
 
         Log.d(TAG, "Contents of the database: " + body);
 
-        String url = mCursor.getString(mCursor.getColumnIndex(Reader.Posts.URL));
+        final String url = mCursor.getString(mCursor.getColumnIndex(Reader.Posts.URL));
 
         if (hasMoreLink(body, url) == false) {
             body += "<p><a href=\"" + url + "\">Read more...</a></p>";
         }
 
-        /* TODO: We should add a check for "posted by", "written by",
-         * "posted on", etc, and optionally add our own tagline if
-         * the information is in the feed. */
+        /*
+         * TODO: We should add a check for "posted by", "written by",
+         * "posted on", etc, and optionally add our own tagline if the
+         * information is in the feed.
+         */
         return body;
     }
 
     private boolean hasMoreLink(String body, String url) {
         int urlpos;
 
-        /* Check if the body contains an anchor reference with the
-         * destination of the read more URL we got from the feed. */
+        /*
+         * Check if the body contains an anchor reference with the destination
+         * of the read more URL we got from the feed.
+         */
         if ((urlpos = body.indexOf(url)) <= 0) {
             return false;
         }
@@ -129,7 +129,7 @@ public class PostView extends Activity {
             if (body.charAt(urlpos + url.length() + 1) != '<') {
                 return false;
             }
-        } catch (IndexOutOfBoundsException e) {
+        } catch (final IndexOutOfBoundsException e) {
             return false;
         }
 

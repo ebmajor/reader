@@ -15,17 +15,16 @@
 package com.quietlycoding.android.reader.util.api;
 
 /**
- * This class holds one Google Reader label, it contains the human readable title
- * and the id to access the label on the server; See {@link com.quietlycoding.android.reader.util.api.Tags}
- * for the parsing of the group of labels.
- *
+ * This class holds one Google Reader label, it contains the human readable
+ * title and the id to access the label on the server; See
+ * {@link com.quietlycoding.android.reader.util.api.Tags} for the parsing of the
+ * group of labels.
+ * 
  * @author mike.novak
  */
 public class Label {
-    private static final String TAG = "Reader.Api";
-
     private String mTitle;
-    private String mId;
+    private final String mId;
     private String mSortId;
 
     public Label(String title, String id) {
@@ -53,4 +52,3 @@ public class Label {
         mSortId = s;
     }
 }
-

@@ -60,11 +60,11 @@ public class ChannelListItem extends RelativeLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
-        int touchX = (int) event.getX();
+        final int touchX = (int) event.getX();
 
         if (!mCachedViewPositions) {
-            float paddingScale = getContext().getResources().getDisplayMetrics().density;
-            int clickPadding = (int) ((CLICKABLE_PAD * paddingScale) + 0.5);
+            final float paddingScale = getContext().getResources().getDisplayMetrics().density;
+            final int clickPadding = (int) ((CLICKABLE_PAD * paddingScale) + 0.5);
             mCheckRight = findViewById(R.id.selected).getRight() + clickPadding;
 
             mCachedViewPositions = true;
@@ -102,5 +102,5 @@ public class ChannelListItem extends RelativeLayout {
         }
 
         return handled;
-    }	
+    }
 }

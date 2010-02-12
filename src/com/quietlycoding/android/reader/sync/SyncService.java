@@ -29,19 +29,19 @@ import com.quietlycoding.android.reader.activity.AccountActivity;
 import com.quietlycoding.android.reader.activity.ChannelList;
 import com.quietlycoding.android.reader.activity.EclairAccountActivity;
 import com.quietlycoding.android.reader.provider.AccountProvider;
-import com.quietlycoding.android.reader.provider.Reader;
-import com.quietlycoding.android.reader.util.api.Subscriptions;
 
 /**
- * The SyncService can be started either by the AlarmManager or directly
- * by the user via the applications sync menu option.
- *
+ * The SyncService can be started either by the AlarmManager or directly by the
+ * user via the applications sync menu option.
+ * 
+ * Note: This SyncService is used by devices running versions of Android earlier than 2.0
+ * 
  * @author mike.novak
  */
 public class SyncService extends Service {
 
     private static final String TAG = "Reader.SyncService";
-    
+
     private NotificationManager mManager;
     private int mPostCount;
 
@@ -56,13 +56,14 @@ public class SyncService extends Service {
 
         mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        SharedPreferences preferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        final SharedPreferences preferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
         mPostCount = preferences.getInt("num.posts", 25);
 
-        AccountProvider provider = new AccountProvider(this);
-        String token = provider.getAuthToken(provider.getMasterAccount());
-        
-        //if the token is null we need to send a notification to the user we can't sync.
+        final AccountProvider provider = new AccountProvider(this);
+        final String token = provider.getAuthToken(provider.getMasterAccount());
+
+        // if the token is null we need to send a notification to the user we
+        // can't sync.
         if (token == null) {
             notifyFailure();
         }
@@ -77,6 +78,7 @@ public class SyncService extends Service {
         mManager.cancel(R.string.reader_sync);
     }
 
+    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
@@ -85,7 +87,7 @@ public class SyncService extends Service {
     public boolean onUnbind(Intent intent) {
         mManager.cancel(R.string.reader_sync);
         stopSelf();
-        
+
         return false;
     }
 
@@ -97,25 +99,25 @@ public class SyncService extends Service {
 
     private void notifyFailure() {
         Intent intent = null;
-    
+
         if (Constants.PRE_ECLAIR) {
             intent = new Intent(this, AccountActivity.class);
         } else {
             intent = new Intent(this, EclairAccountActivity.class);
         }
 
-        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
-        Notification n = new Notification(android.R.drawable.stat_notify_error, "Please authenticate with Google Reader!",
-                System.currentTimeMillis());
+        final PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
+        final Notification n = new Notification(android.R.drawable.stat_notify_error,
+                "Please authenticate with Google Reader!", System.currentTimeMillis());
         n.setLatestEventInfo(this, "Reader", "Google Reader Sync Error", pending);
         mManager.notify(R.string.sync_error, n);
         stopSelf();
     }
 
     private void notifyActive() {
-        Intent intent = new Intent(this, ChannelList.class);
-        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
-        Notification n = new Notification(android.R.drawable.stat_notify_sync,
+        final Intent intent = new Intent(this, ChannelList.class);
+        final PendingIntent pending = PendingIntent.getActivity(this, 0, intent, 0);
+        final Notification n = new Notification(android.R.drawable.stat_notify_sync,
                 "Syncing with Google Reader", System.currentTimeMillis());
         n.setLatestEventInfo(this, "Reader", "Syncing with Google Reader", pending);
         n.flags = Notification.FLAG_ONGOING_EVENT;
@@ -123,7 +125,7 @@ public class SyncService extends Service {
         mManager.notify(R.string.reader_sync, n);
     }
 
-    private Runnable sync = new Runnable() {
+    private final Runnable sync = new Runnable() {
         public void run() {
             Log.i(TAG, "Syncing with Google Reader...");
 
@@ -134,10 +136,9 @@ public class SyncService extends Service {
     };
 
     /**
-     * This method synchronizes the channels in the app with subscriptions on Google Reader.
+     * This method grabs all the subscriptions from Google Reader.
      */
     private void syncSubscriptions() {
         
     }
 }
-

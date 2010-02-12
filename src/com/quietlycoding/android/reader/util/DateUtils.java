@@ -29,29 +29,24 @@ public class DateUtils {
     private static final SimpleDateFormat[] dateFormats;
     private static final int defaultFormat = 2;
 
-    private DateUtils() { }
+    private DateUtils() {
+    }
 
     static {
         final String[] possibleFormats = {
-            "EEE, dd MMM yyyy HH:mm:ss z", // RFC_822
-            "EEE, dd MMM yyyy HH:mm zzzz",
-            "yyyy-MM-dd'T'HH:mm:ssZ",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSzzzz", // Blogger Atom feed has millisecs also
-            "yyyy-MM-dd'T'HH:mm:sszzzz",
-            "yyyy-MM-dd'T'HH:mm:ss z",
-            "yyyy-MM-dd'T'HH:mm:ssz", // ISO_8601
-            "yyyy-MM-dd'T'HH:mm:ss",
-            "yyyy-MM-dd'T'HHmmss.SSSz",
-            "yyyy-MM-dd"
-        };
+                "EEE, dd MMM yyyy HH:mm:ss z", // RFC_822
+                "EEE, dd MMM yyyy HH:mm zzzz", "yyyy-MM-dd'T'HH:mm:ssZ",
+                "yyyy-MM-dd'T'HH:mm:ss.SSSzzzz", // Blogger Atom feed has
+                                                 // millisecs also
+                "yyyy-MM-dd'T'HH:mm:sszzzz", "yyyy-MM-dd'T'HH:mm:ss z", "yyyy-MM-dd'T'HH:mm:ssz", // ISO_8601
+                "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HHmmss.SSSz", "yyyy-MM-dd" };
 
         dateFormats = new SimpleDateFormat[possibleFormats.length];
-        TimeZone gmtTZ = TimeZone.getTimeZone("GMT");
+        final TimeZone gmtTZ = TimeZone.getTimeZone("GMT");
 
         for (int i = 0; i < possibleFormats.length; i++) {
             /* TODO: Support other locales? */
-            dateFormats[i] = new SimpleDateFormat(possibleFormats[i],
-                    Locale.ENGLISH);
+            dateFormats[i] = new SimpleDateFormat(possibleFormats[i], Locale.ENGLISH);
 
             dateFormats[i].setTimeZone(gmtTZ);
         }
@@ -63,20 +58,19 @@ public class DateUtils {
 
         if (str.length() > 10) {
             // TODO deal with +4:00 (no zero before hour)
-            if ((str.substring(str.length() - 5).indexOf("+") == 0 || str
-                    .substring(str.length() - 5).indexOf("-") == 0)
+            if ((str.substring(str.length() - 5).indexOf("+") == 0 || str.substring(
+                    str.length() - 5).indexOf("-") == 0)
                     && str.substring(str.length() - 5).indexOf(":") == 2) {
 
-                String sign = str.substring(str.length() - 5,
-                        str.length() - 4);
+                final String sign = str.substring(str.length() - 5, str.length() - 4);
 
                 str = str.substring(0, str.length() - 5) + sign + "0"
                         + str.substring(str.length() - 4);
                 // logger.debug("CASE1 : new date " + strdate + " ? "
-                //    + strdate.substring(0, strdate.length() - 5));
+                // + strdate.substring(0, strdate.length() - 5));
             }
 
-            String dateEnd = str.substring(str.length() - 6);
+            final String dateEnd = str.substring(str.length() - 6);
 
             // try to deal with -05:00 or +02:00 at end of date
             // replace with -0500 or +0200
@@ -87,8 +81,8 @@ public class DateUtils {
                     Log.d(TAG, "General time zone with offset, no change");
                 } else {
                     // continue treatment
-                    String oldDate = str;
-                    String newEnd = dateEnd.substring(0, 3) + dateEnd.substring(4);
+                    final String oldDate = str;
+                    final String newEnd = dateEnd.substring(0, 3) + dateEnd.substring(4);
                     str = oldDate.substring(0, oldDate.length() - 6) + newEnd;
                     // logger.debug("!!modifying string ->"+strdate);
                 }
@@ -100,26 +94,26 @@ public class DateUtils {
         while (i < dateFormats.length) {
             try {
                 result = dateFormats[i].parse(str);
-                // logger.debug("******Parsing Success "+strdate+"->"+result+" with
+                // logger.debug("******Parsing Success "+strdate+"->"+result+"
+                // with
                 // "+dateFormats[i].toPattern());
                 break;
-            } catch (java.text.ParseException eA) {
+            } catch (final java.text.ParseException eA) {
                 i++;
             }
         }
 
         return result;
     }
-	
+
     /**
      * Format a date in a manner that would be most suitable for serialized
      * storage.
-     *
+     * 
      * @param date
-     *   {@link Date} object to format.
-     *
-     * @return
-     *   Robust, formatted date string.
+     *            {@link Date} object to format.
+     * 
+     * @return Robust, formatted date string.
      */
     public static String formatDate(Date date) {
         return dateFormats[defaultFormat].format(date);

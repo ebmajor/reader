@@ -16,81 +16,81 @@ package com.quietlycoding.android.reader.util;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.quietlycoding.android.reader.Constants;
-import com.quietlycoding.android.reader.activity.AccountActivity;
 import com.quietlycoding.android.reader.provider.AccountProvider;
 import com.quietlycoding.android.reader.util.api.Authentication;
 
 public abstract class AccountStore {
-	
+
     private static final String TAG = "Reader.AccountStore";
-	
+
     public static AccountStore getInstance() {
         if (Constants.PRE_ECLAIR) {
             return PreEclairAccount.Holder.sInstance;
         } else {
             return EclairAccount.Holder.sInstance;
-	}
+        }
     }
-		
+
     public abstract String getAccountToken(Context context, String account, String pass);
-	
+
     public abstract String[] getAccounts(Context context);
-	
+
     private static class PreEclairAccount extends AccountStore {
-		
+
         private static class Holder {
             private static final PreEclairAccount sInstance = new PreEclairAccount();
         }
-		
+
+        @Override
         public String getAccountToken(Context context, String account, String pass) {
             Log.d(TAG, "PreEclair token request.");
-			
+
             return Authentication.getAuthToken(account, pass);
         }
 
+        @Override
         public String[] getAccounts(Context context) {
-            AccountProvider provider = new AccountProvider(context);
-            String user = provider.getMasterAccount();
-			
+            final AccountProvider provider = new AccountProvider(context);
+            final String user = provider.getMasterAccount();
+
             if (user == null) {
                 return null;
             } else {
                 return new String[] { user };
-	    }
+            }
         }
-		
+
     }
-	
+
     private static class EclairAccount extends AccountStore {
-		
+
         private static class Holder {
             private static final EclairAccount sInstance = new EclairAccount();
         }
-		
+
+        @Override
         public String getAccountToken(Context context, String account, String pass) {
-            AccountProvider provider = new AccountProvider(context);
-            String token = provider.getAuthToken(provider.getMasterAccount());
+            final AccountProvider provider = new AccountProvider(context);
+            final String token = provider.getAuthToken(provider.getMasterAccount());
 
             return token;
         }
 
+        @Override
         public String[] getAccounts(Context context) {
-            AccountManager manager = AccountManager.get(context);
-            Account[] accts = manager.getAccountsByType("com.google");
-            String[] names = new String[accts.length];
-			
+            final AccountManager manager = AccountManager.get(context);
+            final Account[] accts = manager.getAccountsByType("com.google");
+            final String[] names = new String[accts.length];
+
             for (int i = 0; i < accts.length; i++) {
                 Log.d(TAG, "Account: " + accts[i]);
                 names[i] = accts[i].name;
             }
-			
+
             return names;
         }
     }

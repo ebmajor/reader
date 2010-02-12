@@ -15,7 +15,6 @@
 package com.quietlycoding.android.reader.activity;
 
 import android.app.ListActivity;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -26,14 +25,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -50,27 +46,25 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 public class PostList extends ListActivity {
     private static final String TAG = "Reader.PostList";
 
-    private static final String[] PROJECTION = new String[] {
-        Reader.Posts._ID, Reader.Posts.CHANNEL_ID, Reader.Posts.TITLE, Reader.Posts.READ,
-        Reader.Posts.DATE, Reader.Posts.AUTHOR, Reader.Posts.STARRED };
+    private static final String[] PROJECTION = new String[] { BaseColumns._ID,
+            Reader.Posts.CHANNEL_ID, Reader.Posts.TITLE, Reader.Posts.READ, Reader.Posts.DATE,
+            Reader.Posts.AUTHOR, Reader.Posts.STARRED };
 
     private Cursor mCursor;
     private long mId;
     private View mMultiSelectPanel;
 
     private static final int[] mColorChipResIds = new int[] {
-        R.drawable.appointment_indicator_leftside_1,
-        R.drawable.appointment_indicator_leftside_5,
-        R.drawable.appointment_indicator_leftside_16,
-        R.drawable.appointment_indicator_leftside_19,
-    };
+            R.drawable.appointment_indicator_leftside_1,
+            R.drawable.appointment_indicator_leftside_5,
+            R.drawable.appointment_indicator_leftside_16,
+            R.drawable.appointment_indicator_leftside_19, };
 
     private static final SimpleDateFormat mDateFmtDB;
     private static final SimpleDateFormat mDateFmtToday;
@@ -92,39 +86,39 @@ public class PostList extends ListActivity {
 
         mMultiSelectPanel = findViewById(R.id.post_footer_organize);
 
-        Uri uri = getIntent().getData();
+        final Uri uri = getIntent().getData();
         mCursor = managedQuery(uri, PROJECTION, null, null, null);
         mId = Long.parseLong(uri.getPathSegments().get(1));
 
-        ListAdapter adapter = new PostListAdapter(this, mCursor);
+        final ListAdapter adapter = new PostListAdapter(this, mCursor);
         setListAdapter(adapter);
     }
-	
+
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI, id);
+        final Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI, id);
         startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
     private void showMultiPanel(boolean show) {
         if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
             mMultiSelectPanel.setVisibility(View.VISIBLE);
-            mMultiSelectPanel.startAnimation(
-                    AnimationUtils.loadAnimation(this, R.anim.footer_appear));
+            mMultiSelectPanel.startAnimation(AnimationUtils.loadAnimation(this,
+                    R.anim.footer_appear));
         } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
             mMultiSelectPanel.setVisibility(View.GONE);
-            mMultiSelectPanel.startAnimation(
-                    AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
+            mMultiSelectPanel.startAnimation(AnimationUtils.loadAnimation(this,
+                    R.anim.footer_disappear));
         }
 
         if (show) {
-            //updateFooterButtonNames();
+            // updateFooterButtonNames();
         }
     }
 
     private void onSetMessageFavorite(long postId, boolean newFavorite) {
-        Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI, postId);
-        ContentValues values = new ContentValues();
+        final Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI, postId);
+        final ContentValues values = new ContentValues();
 
         if (newFavorite) {
             values.put(Reader.Posts.STARRED, 1);
@@ -150,21 +144,20 @@ public class PostList extends ListActivity {
     }
 
     public class PostListAdapter extends ResourceCursorAdapter implements Filterable {
-        private Drawable mAttachmentIcon;
-        private Drawable mFavoriteIconOn;
-        private Drawable mFavoriteIconOff;
-        private Drawable mSelectedIconOn;
-        private Drawable mSelectedIconOff;
+        private final Drawable mFavoriteIconOn;
+        private final Drawable mFavoriteIconOff;
+        private final Drawable mSelectedIconOn;
+        private final Drawable mSelectedIconOff;
 
-        private HashSet<Long> mChecked = new HashSet<Long>();
-        private Context mContext;
+        private final HashSet<Long> mChecked = new HashSet<Long>();
+        private final Context mContext;
 
         public PostListAdapter(Context context, Cursor cur) {
             super(context, R.layout.post_list_item, cur, false);
 
             mContext = context;
 
-            Resources resources = context.getResources();
+            final Resources resources = context.getResources();
             mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
             mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
             mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
@@ -178,7 +171,7 @@ public class PostList extends ListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v;
-            Cursor cursor = mCursor;
+            final Cursor cursor = mCursor;
 
             if (!cursor.moveToPosition(position)) {
                 throw new IllegalStateException("couldn't move cursor to position " + position);
@@ -188,8 +181,8 @@ public class PostList extends ListActivity {
                 v = newView(mContext, cursor, parent);
             } else {
                 v = convertView;
-                PostListItem item = (PostListItem) v;
-                long id = cursor.getLong(cursor.getColumnIndex(Reader.Posts._ID));
+                final PostListItem item = (PostListItem) v;
+                final long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
                 item.mPostId = id;
                 item.mSelected = mChecked.contains(Long.valueOf(id));
             }
@@ -202,12 +195,10 @@ public class PostList extends ListActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             final PostListItemCache cache = (PostListItemCache) view.getTag();
-            PostListItem item = (PostListItem) view;
+            final long postId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+            final boolean selected = mChecked.contains(Long.valueOf(postId));
 
-            long postId = cursor.getLong(cursor.getColumnIndex(Reader.Posts._ID));			
-            boolean selected = mChecked.contains(Long.valueOf(postId));
-
-            int starred = cursor.getInt(cursor.getColumnIndex(Reader.Posts.STARRED));
+            final int starred = cursor.getInt(cursor.getColumnIndex(Reader.Posts.STARRED));
 
             if (starred == 0) {
                 cache.favorite = false;
@@ -224,15 +215,15 @@ public class PostList extends ListActivity {
             text = cursor.getString(cursor.getColumnIndex(Reader.Posts.AUTHOR));
             cache.authorView.setText(text);
 
-            String datestr = cursor.getString(cursor.getColumnIndex(Reader.Posts.DATE));
+            final String datestr = cursor.getString(cursor.getColumnIndex(Reader.Posts.DATE));
 
             try {
-                Date date = mDateFmtDB.parse(datestr);
+                final Date date = mDateFmtDB.parse(datestr);
 
-                Calendar then = new GregorianCalendar();
+                final Calendar then = new GregorianCalendar();
                 then.setTime(date);
 
-                Calendar now = new GregorianCalendar();
+                final Calendar now = new GregorianCalendar();
 
                 SimpleDateFormat fmt;
 
@@ -243,12 +234,12 @@ public class PostList extends ListActivity {
                 }
 
                 cache.dateView.setText(fmt.format(date));
-            } catch (ParseException e) {
+            } catch (final ParseException e) {
                 Log.d(TAG, "Exception caught:: " + e.toString());
             }
 
-            int unread = cursor.getInt(cursor.getColumnIndex(Reader.Posts.READ));
-						
+            final int unread = cursor.getInt(cursor.getColumnIndex(Reader.Posts.READ));
+
             if (unread == 1) {
                 cache.titleView.setTypeface(Typeface.DEFAULT);
                 cache.authorView.setTypeface(Typeface.DEFAULT);
@@ -266,7 +257,8 @@ public class PostList extends ListActivity {
             }
 
             cache.selectedView.setImageDrawable(selected ? mSelectedIconOn : mSelectedIconOff);
-            cache.favoriteView.setImageDrawable(cache.favorite ? mFavoriteIconOn : mFavoriteIconOff);
+            cache.favoriteView
+                    .setImageDrawable(cache.favorite ? mFavoriteIconOn : mFavoriteIconOff);
         }
 
         @Override
@@ -276,7 +268,7 @@ public class PostList extends ListActivity {
 
             final PostListItemCache cache = new PostListItemCache();
 
-            cache.postId = cursor.getLong(cursor.getColumnIndex(Reader.Posts._ID));
+            cache.postId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
             view.mPostId = cache.postId;
 
             cache.chipView = view.findViewById(R.id.chip);
@@ -285,7 +277,7 @@ public class PostList extends ListActivity {
             cache.dateView = (TextView) view.findViewById(R.id.post_date);
             cache.selectedView = (ImageView) view.findViewById(R.id.selected_post);
             cache.favoriteView = (ImageView) view.findViewById(R.id.favorite_post);
-            int starred = cursor.getInt(cursor.getColumnIndex(Reader.Posts.STARRED));
+            final int starred = cursor.getInt(cursor.getColumnIndex(Reader.Posts.STARRED));
             cache.selected = mChecked.contains(Long.valueOf(view.mPostId));
 
             if (starred == 0) {
@@ -299,11 +291,11 @@ public class PostList extends ListActivity {
         }
 
         public void updateSelected(PostListItem item, boolean newSelected) {
-            ImageView selectedView = (ImageView) item.findViewById(R.id.selected_post);
+            final ImageView selectedView = (ImageView) item.findViewById(R.id.selected_post);
             selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
 
             // Set checkbox state in list, and show/hide panel if necessary
-            Long id = Long.valueOf(item.mPostId);
+            final Long id = Long.valueOf(item.mPostId);
 
             if (newSelected) {
                 mChecked.add(id);
@@ -315,7 +307,7 @@ public class PostList extends ListActivity {
         }
 
         public void updateFavorite(PostListItem item, boolean newFavorite) {
-            ImageView favoriteView = (ImageView) item.findViewById(R.id.favorite_post);
+            final ImageView favoriteView = (ImageView) item.findViewById(R.id.favorite_post);
             favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
             onSetMessageFavorite(item.mPostId, newFavorite);
         }

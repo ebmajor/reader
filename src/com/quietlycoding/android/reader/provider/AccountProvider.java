@@ -21,13 +21,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * This class works with the accounts database which is separate from the
- * feeds database to remain private. This database will keep track of the
- * accounts used by the Reader application and store the authToken for
- * quick access.
- *
+ * This class works with the accounts database which is separate from the feeds
+ * database to remain private. This database will keep track of the accounts
+ * used by the Reader application and store the authToken for quick access.
+ * 
  * @author mike novak
- *
+ * 
  */
 public class AccountProvider extends SQLiteOpenHelper {
     private static final String DATABASE_FILE = "accounts.db";
@@ -50,22 +49,24 @@ public class AccountProvider extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //woohoo! nothing here yet.
+        // woohoo! nothing here yet.
     }
 
     /**
      * This method returns the proper authentication string for the desired
-     * account. 
-     *
-     * @param user - the username for the requested token
+     * account.
+     * 
+     * @param user
+     *            - the username for the requested token
      * @return token - the respective token for the supplied user.
-     *
+     * 
      */
     public String getAuthToken(String user) {
-        SQLiteDatabase db = getReadableDatabase();
+        final SQLiteDatabase db = getReadableDatabase();
         String token = null;
 
-        Cursor c = db.rawQuery("SELECT token FROM accounts WHERE username = '" + user + "'", null);
+        final Cursor c = db.rawQuery("SELECT token FROM accounts WHERE username = '" + user + "'",
+                null);
 
         if (c.moveToNext()) {
             token = c.getString(0);
@@ -78,15 +79,17 @@ public class AccountProvider extends SQLiteOpenHelper {
     }
 
     /**
-     * This method updates the token in the database for the supplied user.
-     * An authentication token can expire in which case the app will need
-     * to go and re-authenticate, get a new auth token and update the
-     * database with the new result.
-     *
-     * @param user - the user name with the stale token.
-     * @param newToken - the newly retrieved auth token.
+     * This method updates the token in the database for the supplied user. An
+     * authentication token can expire in which case the app will need to go and
+     * re-authenticate, get a new auth token and update the database with the
+     * new result.
+     * 
+     * @param user
+     *            - the user name with the stale token.
+     * @param newToken
+     *            - the newly retrieved auth token.
      * @return result - the boolean result of the operation.
-     *
+     * 
      */
     public boolean invalidateToken(String user, String newToken) {
         return true;
@@ -96,17 +99,20 @@ public class AccountProvider extends SQLiteOpenHelper {
      * This method adds a brand new account to the database for the application
      * to track. The boolean parameter master is actually optional, if it is not
      * supplied this method is called with the default of false.
-     *
-     * @param user - this is the username to add
-     * @param pass - this is the password associated with the account
-     * @param master - whether this account is the primary account on the device.
+     * 
+     * @param user
+     *            - this is the username to add
+     * @param pass
+     *            - this is the password associated with the account
+     * @param master
+     *            - whether this account is the primary account on the device.
      * @return result - whether or not the operation was successful.
-     *
+     * 
      */
     public boolean addAccount(String user, String pass, String token, boolean master) {
-        SQLiteDatabase db = getWritableDatabase();
+        final SQLiteDatabase db = getWritableDatabase();
 
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put("username", user);
         values.put("password", pass);
         values.put("token", token);
@@ -117,7 +123,7 @@ public class AccountProvider extends SQLiteOpenHelper {
             values.put("master", 0);
         }
 
-        long result = db.insert(DB_TABLE, null, values);
+        final long result = db.insert(DB_TABLE, null, values);
 
         if (result > 0) {
             return true;
@@ -128,7 +134,7 @@ public class AccountProvider extends SQLiteOpenHelper {
 
     /**
      * This method is just a wrapper for the master value.
-     *
+     * 
      * @see @link{org.androidnerds.reader.provider.AccountProvider#addAccount}
      */
     public boolean addAccount(String user, String pass, String token) {
@@ -136,17 +142,19 @@ public class AccountProvider extends SQLiteOpenHelper {
     }
 
     /**
-     * This method allows for the removal of an account with the supplied username.
-     * The application will also remove any feeds that are synchronized with this
-     * account and any posts that have been downloaded.
-     *
-     * @param user - the username of the account for removal.
-     * @param result - the result of the entire set of operations.
+     * This method allows for the removal of an account with the supplied
+     * username. The application will also remove any feeds that are
+     * synchronized with this account and any posts that have been downloaded.
+     * 
+     * @param user
+     *            - the username of the account for removal.
+     * @param result
+     *            - the result of the entire set of operations.
      */
     public boolean removeAccount(String user) {
-        SQLiteDatabase db = getWritableDatabase();
+        final SQLiteDatabase db = getWritableDatabase();
 
-        int result = db.delete(DB_TABLE, "username=?", new String[] { user });
+        final int result = db.delete(DB_TABLE, "username=?", new String[] { user });
 
         db.close();
 
@@ -158,18 +166,19 @@ public class AccountProvider extends SQLiteOpenHelper {
     }
 
     /**
-     * This method will return the username associated with the master account on the
-     * device. The return value will be null if there's no master account stored on
-     * the device.
-     *
-     * @return user - the username associated with the master account on the device.
-     *
+     * This method will return the username associated with the master account
+     * on the device. The return value will be null if there's no master account
+     * stored on the device.
+     * 
+     * @return user - the username associated with the master account on the
+     *         device.
+     * 
      */
     public String getMasterAccount() {
-        SQLiteDatabase db = getReadableDatabase();
+        final SQLiteDatabase db = getReadableDatabase();
         String user = null;
 
-        Cursor c = db.rawQuery("SELECT username FROM accounts WHERE master = '1'", null);
+        final Cursor c = db.rawQuery("SELECT username FROM accounts WHERE master = '1'", null);
 
         if (c.moveToNext()) {
             user = c.getString(0);

@@ -16,7 +16,6 @@ package com.quietlycoding.android.reader.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
@@ -24,8 +23,6 @@ import com.quietlycoding.android.reader.R;
 import com.quietlycoding.android.reader.activity.PostList.PostListAdapter;
 
 public class PostListItem extends RelativeLayout {
-    private static final String TAG = "Reader.PostListItem";
-
     private PostListAdapter mAdapter;
     private boolean mAllowBatch;
     private boolean mCachedViewPositions;
@@ -62,11 +59,11 @@ public class PostListItem extends RelativeLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
-        int touchX = (int) event.getX();
+        final int touchX = (int) event.getX();
 
         if (!mCachedViewPositions) {
-            float paddingScale = getContext().getResources().getDisplayMetrics().density;
-            int clickPadding = (int) ((CLICKABLE_PAD * paddingScale) + 0.5);
+            final float paddingScale = getContext().getResources().getDisplayMetrics().density;
+            final int clickPadding = (int) ((CLICKABLE_PAD * paddingScale) + 0.5);
             mCheckRight = findViewById(R.id.selected_post).getRight() + clickPadding;
             mStarLeft = findViewById(R.id.favorite_post).getLeft() - clickPadding;
 

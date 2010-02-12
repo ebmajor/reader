@@ -27,18 +27,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.quietlycoding.android.reader.R;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ReaderProvider extends ContentProvider {
@@ -60,9 +59,9 @@ public class ReaderProvider extends ContentProvider {
     private static final int LABELS = 7;
 
     private static final UriMatcher URI_MATCHER;
-	
+
     private static class DatabaseHelper extends SQLiteOpenHelper {
-		
+
         public DatabaseHelper(Context c) {
             super(c, DATABASE_NAME, null, DATABASE_VERSION);
         }
@@ -72,12 +71,6 @@ public class ReaderProvider extends ContentProvider {
             db.execSQL(Reader.Channels.SQL.CREATE);
             db.execSQL(Reader.Posts.SQL.CREATE);
             db.execSQL(Reader.Labels.SQL.CREATE);
-        }
-
-        private void execIndex(SQLiteDatabase db, String[] index) {
-            for (int i = 0; i < index.length; i++) {
-                db.execSQL(index[i]);
-            }
         }
 
         private void onDrop(SQLiteDatabase db) {
@@ -99,7 +92,7 @@ public class ReaderProvider extends ContentProvider {
                 break;
             case 2:
                 db.execSQL(Reader.Labels.SQL.CREATE);
-                db.execSQL("ALTER TABLE " + Reader.Channels.SQL.TABLE + " ADD COLUMN " 
+                db.execSQL("ALTER TABLE " + Reader.Channels.SQL.TABLE + " ADD COLUMN "
                         + Reader.Channels.LABEL + " INTEGER(1) DEFAULT '0';");
                 break;
             default:
@@ -118,12 +111,12 @@ public class ReaderProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, 
-            String[] selectionArgs, String sort) {
-				
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sort) {
+
+        final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         String defaultSort = null;
-	
+
         switch (URI_MATCHER.match(uri)) {
         case CHANNELS:
             qb.setTables(Reader.Channels.SQL.TABLE);
@@ -136,7 +129,7 @@ public class ReaderProvider extends ContentProvider {
             break;
         case CHANNEL_POSTS:
             qb.setTables(Reader.Posts.SQL.TABLE);
-            qb.appendWhere("channel_id=" +  uri.getPathSegments().get(1));
+            qb.appendWhere("channel_id=" + uri.getPathSegments().get(1));
             defaultSort = Reader.Posts.DEFAULT_SORT_ORDER;
             break;
         case POST_ID:
@@ -160,8 +153,8 @@ public class ReaderProvider extends ContentProvider {
             orderBy = sort;
         }
 
-        SQLiteDatabase db = mHelper.getReadableDatabase();
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+        final SQLiteDatabase db = mHelper.getReadableDatabase();
+        final Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 
         c.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -193,58 +186,57 @@ public class ReaderProvider extends ContentProvider {
     private String getIconFilename(long channelId) {
         return "channel" + channelId + ".ico";
     }
-	
+
     private String getIconPath(long channelId) {
         return getContext().getFileStreamPath(getIconFilename(channelId)).getAbsolutePath();
     }
 
     private void copyDefaultIcon(String path) throws FileNotFoundException, IOException {
-        FileOutputStream out = new FileOutputStream(path);
-        InputStream ico = getContext().getResources().openRawResource(R.drawable.feedicon);
+        final FileOutputStream out = new FileOutputStream(path);
+        final InputStream ico = getContext().getResources().openRawResource(R.drawable.feedicon);
 
-        byte[] buf = new byte[1024];
+        final byte[] buf = new byte[1024];
         int n;
 
         while ((n = ico.read(buf)) != -1) {
             out.write(buf, 0, n);
         }
-	
+
         ico.close();
         out.close();
     }
 
-    public ParcelFileDescriptor openFile(Uri uri, String mode) 
-            throws FileNotFoundException {
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
 
         switch (URI_MATCHER.match(uri)) {
         case CHANNELICON_ID:
-            long id = Long.valueOf(uri.getPathSegments().get(1));
-            String path = getIconPath(id);
+            final long id = Long.valueOf(uri.getPathSegments().get(1));
+            final String path = getIconPath(id);
 
             if (mode.equals("rw") == true) {
-                FileOutputStream foo = getContext().openFileOutput(getIconFilename(id), 0);
+                final FileOutputStream foo = getContext().openFileOutput(getIconFilename(id), 0);
 
-                try { 
-                    foo.write(new byte[] { 't' }); 
-                    foo.close(); 
-                } catch (Exception e) { 
+                try {
+                    foo.write(new byte[] { 't' });
+                    foo.close();
+                } catch (final Exception e) {
                     Log.d(TAG, "Exception caught: " + e.toString());
                 }
             }
 
-            File file = new File(path);
+            final File file = new File(path);
             int modeint;
 
             if (mode.equals("rw")) {
-                modeint = ParcelFileDescriptor.MODE_READ_WRITE | 
-                ParcelFileDescriptor.MODE_TRUNCATE;
+                modeint = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_TRUNCATE;
             } else {
                 modeint = ParcelFileDescriptor.MODE_READ_ONLY;
 
                 if (!file.exists()) {
                     try {
                         copyDefaultIcon(path);
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         Log.d(TAG, "Unable to create the icon file ", e);
                         return null;
                     }
@@ -256,46 +248,42 @@ public class ReaderProvider extends ContentProvider {
             throw new IllegalArgumentException("Unknown Uri: " + uri);
         }
     }
-	
+
     private long insertChannels(SQLiteDatabase db, ContentValues values) {
-        Resources r = Resources.getSystem();
+        final Resources r = Resources.getSystem();
 
         if (!values.containsKey(Reader.Channels.TITLE)) {
             values.put(Reader.Channels.TITLE, r.getString(android.R.string.untitled));
         }
 
-        long id = db.insert(Reader.Channels.SQL.TABLE, "title", values);
+        final long id = db.insert(Reader.Channels.SQL.TABLE, "title", values);
 
         if (!values.containsKey(Reader.Channels.ICON)) {
             Uri iconUri;
 
-            iconUri = Reader.Channels.CONTENT_URI.buildUpon()
-                    .appendPath(String.valueOf(id))
-                    .appendPath("icon")
-                    .build();
+            iconUri = Reader.Channels.CONTENT_URI.buildUpon().appendPath(String.valueOf(id))
+                    .appendPath("icon").build();
 
-            ContentValues update = new ContentValues();
+            final ContentValues update = new ContentValues();
             update.put(Reader.Channels.ICON, iconUri.toString());
             db.update(Reader.Channels.SQL.TABLE, update, "_id=" + id, null);
         }
 
         return id;
     }
-	
+
     private long insertPosts(SQLiteDatabase db, ContentValues values) {
         return db.insert(Reader.Posts.SQL.TABLE, Reader.Posts.TITLE, values);
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        SQLiteDatabase db = mHelper.getWritableDatabase();
+        final SQLiteDatabase db = mHelper.getWritableDatabase();
         long rowId;
 
         if (values == null) {
             values = new ContentValues();
         }
-
-        Uri result;
 
         if (URI_MATCHER.match(uri) == CHANNELS) {
             rowId = insertChannels(db, values);
@@ -308,17 +296,17 @@ public class ReaderProvider extends ContentProvider {
         }
 
         if (rowId > 0) {
-            assert(uri != null);
+            assert (uri != null);
             getContext().getContentResolver().notifyChange(uri, null);
             return uri;
         }
 
         throw new SQLException("Failed to insert row into: " + uri);
     }
-	
+
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
-        SQLiteDatabase db = mHelper.getWritableDatabase();
+        final SQLiteDatabase db = mHelper.getWritableDatabase();
         int count;
 
         switch (URI_MATCHER.match(uri)) {
@@ -326,16 +314,16 @@ public class ReaderProvider extends ContentProvider {
             count = db.delete(Reader.Channels.SQL.TABLE, where, whereArgs);
             break;
         case CHANNEL_ID:
-            where = "_id=" + uri.getPathSegments().get(1) + 
-                    (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
-            count = db.delete(Reader.Channels.SQL.TABLE, where, whereArgs); 
+            where = "_id=" + uri.getPathSegments().get(1)
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
+            count = db.delete(Reader.Channels.SQL.TABLE, where, whereArgs);
             break;
         case POSTS:
             count = db.delete(Reader.Posts.SQL.TABLE, where, whereArgs);
             break;
         case POST_ID:
-            where = "_id=" + uri.getPathSegments().get(1) +
-                    (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
+            where = "_id=" + uri.getPathSegments().get(1)
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
             count = db.delete(Reader.Posts.SQL.TABLE, where, whereArgs);
             break;
         default:
@@ -348,7 +336,7 @@ public class ReaderProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
-        SQLiteDatabase db = mHelper.getWritableDatabase();
+        final SQLiteDatabase db = mHelper.getWritableDatabase();
         int count;
 
         switch (URI_MATCHER.match(uri)) {
@@ -358,8 +346,8 @@ public class ReaderProvider extends ContentProvider {
             break;
         case CHANNEL_ID:
             values.put(Reader.Channels.SYNC, 1);
-            where = "_id=" + uri.getPathSegments().get(1) +
-                    (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
+            where = "_id=" + uri.getPathSegments().get(1)
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
             count = db.update(Reader.Channels.SQL.TABLE, values, where, whereArgs);
             break;
         case POSTS:
@@ -368,8 +356,8 @@ public class ReaderProvider extends ContentProvider {
             break;
         case POST_ID:
             values.put(Reader.Posts.SYNC, 1);
-            where = "_id=" + uri.getPathSegments().get(1) +
-                    (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
+            where = "_id=" + uri.getPathSegments().get(1)
+                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : "");
             count = db.update(Reader.Posts.SQL.TABLE, values, where, whereArgs);
             break;
         default:
@@ -390,7 +378,7 @@ public class ReaderProvider extends ContentProvider {
         URI_MATCHER.addURI(Reader.AUTHORITY, "postlist/#", CHANNEL_POSTS);
 
         CHANNEL_LIST_PROJECTION_MAP = new HashMap<String, String>();
-        CHANNEL_LIST_PROJECTION_MAP.put(Reader.Channels._ID, "_id");
+        CHANNEL_LIST_PROJECTION_MAP.put(BaseColumns._ID, "_id");
         CHANNEL_LIST_PROJECTION_MAP.put(Reader.Channels.TITLE, "title");
         CHANNEL_LIST_PROJECTION_MAP.put(Reader.Channels.URL, "url");
         CHANNEL_LIST_PROJECTION_MAP.put(Reader.Channels.ICON, "icon");
@@ -398,7 +386,7 @@ public class ReaderProvider extends ContentProvider {
         CHANNEL_LIST_PROJECTION_MAP.put(Reader.Channels.SYNC, "sync");
 
         POST_LIST_PROJECTION_MAP = new HashMap<String, String>();
-        POST_LIST_PROJECTION_MAP.put(Reader.Posts._ID, "_id");
+        POST_LIST_PROJECTION_MAP.put(BaseColumns._ID, "_id");
         POST_LIST_PROJECTION_MAP.put(Reader.Posts.CHANNEL_ID, "channel_id");
         POST_LIST_PROJECTION_MAP.put(Reader.Posts.READ, "read");
         POST_LIST_PROJECTION_MAP.put(Reader.Posts.TITLE, "title");

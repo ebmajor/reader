@@ -25,15 +25,13 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.CursorAdapter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -41,8 +39,8 @@ import android.widget.ListView;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
 
-import com.quietlycoding.android.reader.Constants;
 import com.quietlycoding.android.reader.R;
+import com.quietlycoding.android.reader.preferences.Preferences;
 import com.quietlycoding.android.reader.provider.Reader;
 import com.quietlycoding.android.reader.view.ChannelListItem;
 
@@ -51,7 +49,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,19 +59,17 @@ public class ChannelList extends ListActivity {
 
     private static final String TAG = "Reader.ChannelList";
 
-    private static final String[] PROJECTION = new String[] {
-        Reader.Channels._ID, Reader.Channels.ICON, Reader.Channels.TITLE, Reader.Channels.URL
-    };
+    private static final String[] PROJECTION = new String[] { BaseColumns._ID,
+            Reader.Channels.ICON, Reader.Channels.TITLE, Reader.Channels.URL };
 
     private Cursor mCursor;
     private View mMultiSelectPanel;
 
     private static final int[] mColorChipResIds = new int[] {
-        R.drawable.appointment_indicator_leftside_1,
-        R.drawable.appointment_indicator_leftside_5,
-        R.drawable.appointment_indicator_leftside_16,
-        R.drawable.appointment_indicator_leftside_19,
-    };
+            R.drawable.appointment_indicator_leftside_1,
+            R.drawable.appointment_indicator_leftside_5,
+            R.drawable.appointment_indicator_leftside_16,
+            R.drawable.appointment_indicator_leftside_19, };
 
     private static final SimpleDateFormat mDateFmtDB;
     private static final SimpleDateFormat mDateFmtToday;
@@ -96,7 +91,7 @@ public class ChannelList extends ListActivity {
 
         mMultiSelectPanel = findViewById(R.id.footer_organize);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
 
         if (intent.getData() == null) {
             intent.setData(Reader.Channels.CONTENT_URI);
@@ -107,8 +102,8 @@ public class ChannelList extends ListActivity {
         }
 
         mCursor = managedQuery(getIntent().getData(), PROJECTION, null, null, null);
-
-        ListAdapter adapter = new ChannelListAdapter(this, mCursor);
+        
+        final ListAdapter adapter = new ChannelListAdapter(this, mCursor);
         setListAdapter(adapter);
     }
 
@@ -116,11 +111,11 @@ public class ChannelList extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, INSERT_ID, 0, "New Feed").setIcon(android.R.drawable.ic_menu_add)
-                .setShortcut('3', 'a');
-        menu.add(0, ACCOUNT_ID, 0, "Account").setIcon(R.drawable.ic_menu_account_list);
+        menu.add(0, INSERT_ID, 0, "New Feed").setIcon(android.R.drawable.ic_menu_add).setShortcut(
+                '3', 'a');
+        menu.add(0, ACCOUNT_ID, 0, "Settings").setIcon(android.R.drawable.ic_menu_preferences);
 
-       return true;
+        return true;
     }
 
     @Override
@@ -130,11 +125,7 @@ public class ChannelList extends ListActivity {
             startActivity(new Intent(Intent.ACTION_INSERT, getIntent().getData()));
             return true;
         case ACCOUNT_ID:
-            if (Constants.PRE_ECLAIR) {
-                startActivity(new Intent(this, AccountActivity.class));
-            } else {
-                startActivity(new Intent(this, EclairAccountActivity.class));
-            }
+            startActivity(new Intent(this, Preferences.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -142,18 +133,18 @@ public class ChannelList extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        String action = getIntent().getAction();
+        final String action = getIntent().getAction();
 
         if (action.equals(Intent.ACTION_PICK) || action.equals(Intent.ACTION_GET_CONTENT)) {
-            Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
+            final Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
 
             Log.d(TAG, "List Item Id: " + id);
 
-            Intent intent = getIntent();
+            final Intent intent = getIntent();
             intent.setData(uri);
             setResult(RESULT_OK, intent);
         } else {
-            Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI_LIST, id);
+            final Uri uri = ContentUris.withAppendedId(Reader.Posts.CONTENT_URI_LIST, id);
 
             startActivity(new Intent(Intent.ACTION_VIEW, uri));
         }
@@ -162,16 +153,16 @@ public class ChannelList extends ListActivity {
     private void showMultiPanel(boolean show) {
         if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
             mMultiSelectPanel.setVisibility(View.VISIBLE);
-            mMultiSelectPanel.startAnimation(
-            AnimationUtils.loadAnimation(this, R.anim.footer_appear));
+            mMultiSelectPanel.startAnimation(AnimationUtils.loadAnimation(this,
+                    R.anim.footer_appear));
         } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
             mMultiSelectPanel.setVisibility(View.GONE);
-            mMultiSelectPanel.startAnimation(
-            AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
+            mMultiSelectPanel.startAnimation(AnimationUtils.loadAnimation(this,
+                    R.anim.footer_disappear));
         }
 
         if (show) {
-            //updateFooterButtonNames();
+            // updateFooterButtonNames();
         }
     }
 
@@ -182,20 +173,20 @@ public class ChannelList extends ListActivity {
         public TextView lastPostView;
         public ImageView selectedView;
     }
-	
-    public class ChannelListAdapter extends ResourceCursorAdapter implements Filterable {
-        private Drawable mSelectedIconOn;
-        private Drawable mSelectedIconOff;
-        private Context mContext;
 
-        private HashSet<Long> mChecked = new HashSet<Long>();
+    public class ChannelListAdapter extends ResourceCursorAdapter implements Filterable {
+        private final Drawable mSelectedIconOn;
+        private final Drawable mSelectedIconOff;
+        private final Context mContext;
+
+        private final HashSet<Long> mChecked = new HashSet<Long>();
 
         public ChannelListAdapter(Context context, Cursor cur) {
             super(context, R.layout.channel_list_item, cur, false);
 
             mContext = context;
 
-            Resources resources = context.getResources();
+            final Resources resources = context.getResources();
             mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
             mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
         }
@@ -207,7 +198,7 @@ public class ChannelList extends ListActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v;
-            Cursor cursor = mCursor;
+            final Cursor cursor = mCursor;
 
             if (!cursor.moveToPosition(position)) {
                 throw new IllegalStateException("could not move to cursor position: " + position);
@@ -217,8 +208,8 @@ public class ChannelList extends ListActivity {
                 v = newView(mContext, cursor, parent);
             } else {
                 v = convertView;
-                ChannelListItem item = (ChannelListItem) v;
-                item.mChannelId = cursor.getLong(cursor.getColumnIndex(Reader.Channels._ID));
+                final ChannelListItem item = (ChannelListItem) v;
+                item.mChannelId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
                 item.mSelected = mChecked.contains(Long.valueOf(item.mChannelId));
             }
 
@@ -229,40 +220,42 @@ public class ChannelList extends ListActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             final ChannelListItemCache cache = (ChannelListItemCache) view.getTag();
-            ChannelListItem item = (ChannelListItem) view;
+            final ChannelListItem item = (ChannelListItem) view;
 
-            long channelId = cursor.getLong(cursor.getColumnIndex(Reader.Channels._ID));
+            final long channelId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
             item.mChannelId = channelId;
 
             item.mSelected = mChecked.contains(Long.valueOf(item.mChannelId));
 
-            ContentResolver resolver = context.getContentResolver();
-            Cursor unread = resolver.query(ContentUris.withAppendedId(Reader.Posts.CONTENT_URI_LIST, 
-                    channelId), new String[] { Reader.Posts._ID }, "read=0", null, null);
+            final ContentResolver resolver = context.getContentResolver();
+            final Cursor unread = resolver.query(ContentUris.withAppendedId(
+                    Reader.Posts.CONTENT_URI_LIST, channelId), new String[] { BaseColumns._ID },
+                    "read=0", null, null);
 
-            int unreadCount = unread.getCount();
+            final int unreadCount = unread.getCount();
             unread.close();
 
-            Cursor lastPost = resolver.query(ContentUris.withAppendedId(Reader.Posts.CONTENT_URI_LIST,
-                    channelId), new String[] { Reader.Posts.DATE }, null, null, "posted_on DESC LIMIT 1");
+            final Cursor lastPost = resolver.query(ContentUris.withAppendedId(
+                    Reader.Posts.CONTENT_URI_LIST, channelId), new String[] { Reader.Posts.DATE },
+                    null, null, "posted_on DESC LIMIT 1");
 
             String strdate = "";
             String formattedDate = "";
 
             if (lastPost.moveToNext()) {
                 strdate = lastPost.getString(lastPost.getColumnIndex(Reader.Posts.DATE));
-            }	
+            }
 
             lastPost.close();
 
             if (!strdate.equals("")) {
                 try {
-                    Date date = mDateFmtDB.parse(strdate);
+                    final Date date = mDateFmtDB.parse(strdate);
 
-                    Calendar then = new GregorianCalendar();
+                    final Calendar then = new GregorianCalendar();
                     then.setTime(date);
 
-                    Calendar now = new GregorianCalendar();
+                    final Calendar now = new GregorianCalendar();
                     SimpleDateFormat fmt;
 
                     if (now.get(Calendar.DAY_OF_YEAR) == then.get(Calendar.DAY_OF_YEAR)) {
@@ -272,11 +265,11 @@ public class ChannelList extends ListActivity {
                     }
 
                     formattedDate = fmt.format(date);
-                } catch (ParseException e) {
+                } catch (final ParseException e) {
                     Log.d(TAG, "Exception caught:: " + e.toString());
                 }
             }
-			
+
             int chipResId = mColorChipResIds[0];
             cache.chipView.setBackgroundResource(chipResId);
 
@@ -304,7 +297,8 @@ public class ChannelList extends ListActivity {
                         R.drawable.list_item_background_unread));
             }
 
-            cache.selectedView.setImageDrawable(item.mSelected ? mSelectedIconOn : mSelectedIconOff);
+            cache.selectedView
+                    .setImageDrawable(item.mSelected ? mSelectedIconOn : mSelectedIconOff);
         }
 
         @Override
@@ -314,7 +308,7 @@ public class ChannelList extends ListActivity {
 
             final ChannelListItemCache cache = new ChannelListItemCache();
 
-            view.mChannelId = cursor.getLong(cursor.getColumnIndex(Reader.Channels._ID));
+            view.mChannelId = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
             view.mSelected = mChecked.contains(Long.valueOf(view.mChannelId));
 
             cache.chipView = view.findViewById(R.id.chip);
@@ -328,11 +322,11 @@ public class ChannelList extends ListActivity {
         }
 
         public void updateSelected(ChannelListItem item, boolean newSelected) {
-            ImageView selectedView = (ImageView) item.findViewById(R.id.selected);
+            final ImageView selectedView = (ImageView) item.findViewById(R.id.selected);
             selectedView.setImageDrawable(newSelected ? mSelectedIconOn : mSelectedIconOff);
 
             // Set checkbox state in list, and show/hide panel if necessary
-            Long id = Long.valueOf(item.mChannelId);
+            final Long id = Long.valueOf(item.mChannelId);
 
             if (newSelected) {
                 mChecked.add(id);
