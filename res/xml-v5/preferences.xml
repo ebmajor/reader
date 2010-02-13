@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     
     <PreferenceCategory
-        android:title="@string/general_settings">
+        android:title="@string/sync_settings">
         
         <CheckBoxPreference
             android:key="pref_sync_open"
@@ -42,14 +42,26 @@
     </PreferenceCategory>
     
     <PreferenceCategory
-        android:title="@string/display_settings">
-            
-        <CheckBoxPreference
-            android:key="android_20"
-            android:title="Android Version 2.0 Code"
-            android:summary="This only appears for versions of Android higher than 2.0"
-            android:defaultValue="true" />
+        android:title="@string/notification_settings">
         
+        <CheckBoxPreference
+	       android:key="notify_posts"
+	       android:title="@string/notify_posts"
+	       android:summary="@string/notify_posts_desc" />
+	       
+        <com.quietlycoding.android.reader.preferences.ReaderRingtonePreference
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:dependency="notify_posts"
+            android:key="notification-ringtone"
+            android:persistent="false"
+            android:title="@string/notify_ringtone"
+            android:ringtoneType="notification" />
+                
+        <CheckBoxPreference
+            android:key="pref_notification_vibrate"
+            android:title="@string/notify_vibrate"
+            android:summary="@string/notify_vibrate_desc"
+ 			android:dependency="notify_posts"/>
         
     </PreferenceCategory>
     

@@ -24,6 +24,8 @@
     
     <!-- Preferences Strings -->
     <string name="general_settings">General Settings</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="sync_settings">Sync Settings</string>
     <string name="display_settings">Display Settings</string>
     <string name="sync_on_open">Sync on Open</string>
     <string name="sync_on_open_desc">Sync when application starts</string>
@@ -31,4 +33,9 @@
     <string name="sync_schedule_desc">Set when the application syncs</string>
     <string name="sync_account">Google Account</string>
     <string name="sync_account_desc">Google Account for sync</string>
+    <string name="notify_vibrate">Vibrate</string>
+    <string name="notify_vibrate_desc">Also vibrate for new posts</string>
+    <string name="notify_ringtone">Select Ringtone</string>
+    <string name="notify_posts">Notify for new posts</string>
+    <string name="notify_posts_desc">Notify when new posts are downloaded</string>
 </resources>
