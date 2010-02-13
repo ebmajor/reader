@@ -1,0 +1,15 @@
+=========================
+README
+========================
+
+So Github likes the idea of a README file, so here goes the unofficial first draft.
+
+
+Building the source code for Reader is extremely simple at the moment. I use ant to
+actually build my code but there's also a .project file for those who use Eclipse, 
+you'll need to set your classpath for the android.jar. I am targeting android-7 so
+I definitely recommend using 7, but the absolute minimum required target is 5.
+
+Enjoy! Have any issues with it? File a bug at http://code.google.com/p/reader
+
+Thanks!
