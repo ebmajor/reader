@@ -33,6 +33,12 @@
             android:summary="Set when the application syncs"
             android:defaultValue="false" />
         
+        <com.quietlycoding.android.reader.preferences.PostCountPreference
+            android:key="num_posts"
+            android:title="Posts to download"
+            android:summary="Number of posts to download"
+            android:defaultValue="25" />
+            
     </PreferenceCategory>
     
     <PreferenceCategory
@@ -44,11 +50,6 @@
             android:summary="This only appears for versions of Android higher than 2.0"
             android:defaultValue="true" />
         
-        <com.quietlycoding.android.reader.preferences.PostCountPreference
-            android:key="num_posts"
-            android:title="Posts to download"
-            android:summary="Number of posts to download"
-            android:defaultValue="25" />
         
     </PreferenceCategory>
     

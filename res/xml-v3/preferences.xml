@@ -39,16 +39,16 @@
             android:summary="@string/sync_account_desc"
             android:dialogLayout="@layout/auth_dialog" />
         
-    </PreferenceCategory>
-    
-    <PreferenceCategory
-        android:title="@string/display_settings">
-        
         <com.quietlycoding.android.reader.preferences.PostCountPreference
             android:key="num_posts"
             android:title="Posts to download"
             android:summary="Number of posts to download"
             android:defaultValue="25" />
+            
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/display_settings">
         
     </PreferenceCategory>
     
