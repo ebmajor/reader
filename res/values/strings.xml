@@ -27,6 +27,8 @@
     <string name="notification_settings">Notification Settings</string>
     <string name="sync_settings">Sync Settings</string>
     <string name="display_settings">Display Settings</string>
+    <string name="scroll_read">Mark read as scrolling</string>
+    <string name="scroll_read_desc">Mark posts as read when scrolling</string>
     <string name="sync_on_open">Sync on Open</string>
     <string name="sync_on_open_desc">Sync when application starts</string>
     <string name="sync_schedule">Sync Schedule</string>
@@ -38,4 +40,18 @@
     <string name="notify_ringtone">Select Ringtone</string>
     <string name="notify_posts">Notify for new posts</string>
     <string name="notify_posts_desc">Notify when new posts are downloaded</string>
+    <string name="storage_settings">Storage Settings</string>
+    <string name="storage_sdcard">Store posts on sdcard</string>
+    <string name="storage_sdcard_desc">Stores all rss content on the sdcard</string>
+    <string name="storage_old_posts">Remove old posts</string>
+    <string name="storage_old_posts_desc">Remove posts older than 30 days</string>
+    <string name="app_info_settings">About</string>
+    <string name="app_version">Software Version</string>
+    <string name="app_version_desc">0.1</string>
+    <string name="app_build">Software Build</string>
+    <string name="app_build_desc">EC33</string>
+    <string name="app_license">Software License</string>
+    <string name="app_license_desc">Apache 2.0 License</string>
+    <string name="app_website">Software website</string>
+    <string name="app_website_desc">http://code.google.com/p/reader</string>
 </resources>

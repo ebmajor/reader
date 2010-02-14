@@ -19,6 +19,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     
     <PreferenceCategory
+        android:title="@string/general_settings">
+    
+        <CheckBoxPreference
+            android:key="scroll_read"
+            android:title="@string/scroll_read"
+            android:summary="@string/scroll_read_desc"
+            android:defaultValue="false" />
+                
+    </PreferenceCategory>
+    
+    <PreferenceCategory
         android:title="@string/sync_settings">
         
         <CheckBoxPreference
@@ -69,6 +80,51 @@
             android:summary="@string/notify_vibrate_desc"
  			android:dependency="notify_posts"/>
         
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/storage_settings">
+        
+        <CheckBoxPreference
+            android:key="storage_sdcard"
+            android:title="@string/storage_sdcard"
+            android:summary="@string/storage_sdcard_desc"
+            android:defaultValue="true" />
+            
+        <CheckBoxPreference
+            android:key="storage_old_posts"
+            android:title="@string/storage_old_posts"
+            android:summary="@string/storage_old_posts_desc" />
+ 			    
+    </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="@string/app_info_settings">
+        
+        <Preference
+			android:key="app_version"
+			style="?android:preferenceInformationStyle"
+			android:title="@string/app_version"
+			android:summary="@string/app_version_desc" />
+			
+	    <Preference
+			android:key="app_build"
+			style="?android:preferenceInformationStyle"
+			android:title="@string/app_build"
+			android:summary="@string/app_build_desc" />
+			
+	    <Preference
+			android:key="app_license"
+			style="?android:preferenceInformationStyle"
+			android:title="@string/app_license"
+			android:summary="@string/app_license_desc" />
+			
+	    <Preference
+			android:key="app_website"
+			style="?android:preferenceInformationStyle"
+			android:title="@string/app_website"
+			android:summary="@string/app_website_desc" />
+			
     </PreferenceCategory>
     
 </PreferenceScreen>
